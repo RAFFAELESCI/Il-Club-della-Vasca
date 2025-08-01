@@ -1,16 +1,268 @@
-<!-- test -->
-
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="refresh" content="0; URL=register-client.html" />
-    <title>Redirect...</title>
-  </head>
-  <body>
-    <p>Reindirizzamento in corso alla pagina di registrazione cliente...</p>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registrazione Cliente - Bathpipe Fidelity</title>
+  <style>
+    @font-face {
+      font-family: 'Ransel';
+      src: url('/fonts/Ransel.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Ransel', 'Montserrat', sans-serif;
+      background-color: #171716;
+      color: #EACE3E;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+      background-color: #1F1F1E;
+      border-radius: 10px;
+      text-align: center;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .logo-placeholder {
+      width: 80px;
+      height: 80px;
+      background-color: #A2231A;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+    }
+
+    h1 {
+      color: #D69327;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+      color: #D69327;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 15px;
+      font-size: 1rem;
+      background-color: #2A2A29;
+      color: #EACE3E;
+    }
+
+    .photo-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #2A2A29;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+
+    .photo-section select {
+      background: none;
+      border: none;
+      color: #EACE3E;
+      font-size: 1rem;
+      flex: 1;
+    }
+
+    .photo-icon {
+      margin-left: 10px;
+      width: 24px;
+      height: 24px;
+      fill: #EACE3E;
+    }
+
+    #preview {
+      margin-top: 10px;
+      max-width: 100%;
+      border-radius: 6px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #A2231A;
+      color: #EACE3E;
+      font-weight: bold;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #D69327;
+      color: #171716;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-placeholder"></div>
+    <h1>Registra Cliente</h1>
+    <form id="clientForm">
+      <label for="nickname">Nickname</label>
+      <input type="text" id="nickname" name="nickname" placeholder="Es. Mario123" required />
+
+      <label for="nfc">Codice NFC</label>
+      <input type="text" id="nfc" name="nfc" placeholder="Tocca con tessera o inserisci codice" required />
+
+      <label>Foto</label>
+      <div class="photo-section">
+        <select id="photoChoice">
+          <option value="">Scegli un'opzione</option>
+          <option value="camera">Scatta foto</option>
+          <option value="gallery">Scegli immagine da galleria</option>
+        </select>
+        <svg class="photo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm9-2h-3.17l-1.42-1.41A2 2 0 0014.17 4H9.83a2 2 0 00-1.42.59L7 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z"/></svg>
+      </div>
+
+      <input type="file" id="galleryInput" accept="image/*" style="display: none;" />
+      <video id="camera" autoplay playsinline style="display: none;"></video>
+      <canvas id="canvas" style="display: none;"></canvas>
+      <img id="preview" style="display: none;" />
+
+      <button type="button" id="captureBtn" style="display: none;">Scatta</button>
+      <button type="submit">Registra Cliente</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
+      authDomain: "il-club-della-vasca.firebaseapp.com",
+      projectId: "il-club-della-vasca",
+      storageBucket: "il-club-della-vasca.appspot.com",
+      messagingSenderId: "924753798835",
+      appId: "1:924753798835:web:fc21f386c666caf37f32c6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('clientForm');
+    const photoChoice = document.getElementById('photoChoice');
+    const galleryInput = document.getElementById('galleryInput');
+    const preview = document.getElementById('preview');
+    const camera = document.getElementById('camera');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    let imageDataUrl = "";
+
+    photoChoice.addEventListener('change', async () => {
+      preview.style.display = "none";
+      captureBtn.style.display = "none";
+      camera.style.display = "none";
+
+      if (photoChoice.value === "camera") {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          camera.srcObject = stream;
+          camera.style.display = "block";
+          captureBtn.style.display = "inline-block";
+        } catch (err) {
+          alert("Impossibile accedere alla fotocamera.");
+          photoChoice.value = "";
+        }
+      } else if (photoChoice.value === "gallery") {
+        galleryInput.click();
+      }
+    });
+
+    galleryInput.addEventListener('change', () => {
+      const file = galleryInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imageDataUrl = reader.result;
+          preview.src = imageDataUrl;
+          preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = camera.videoWidth;
+      canvas.height = camera.videoHeight;
+      context.drawImage(camera, 0, 0);
+      imageDataUrl = canvas.toDataURL('image/png');
+      preview.src = imageDataUrl;
+      preview.style.display = "block";
+
+      // Ferma la fotocamera
+      camera.srcObject.getTracks().forEach(track => track.stop());
+      camera.style.display = "none";
+      captureBtn.style.display = "none";
+      photoChoice.value = "";
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nickname = form.nickname.value.trim();
+      const nfc = form.nfc.value.trim();
+
+      if (!nickname || !nfc || !imageDataUrl) {
+        alert("Compila tutti i campi e aggiungi una foto.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "clienti"), {
+          nickname,
+          nfc,
+          foto: imageDataUrl,
+          timestamp: new Date()
+        });
+        alert("Cliente registrato con successo!");
+
+        // Reset form
+        form.reset();
+        preview.style.display = "none";
+        photoChoice.value = "";
+        imageDataUrl = "";
+      } catch (error) {
+        console.error("Errore nel salvataggio:", error);
+        alert("Errore nel salvataggio del cliente.");
+      }
+    });
+  </script>
+</body>
 </html>
+
+
+
 
 DK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
