@@ -139,19 +139,8 @@
 </head>
 <body>
 
-<script>
-  // Rimuove eventuali nodi di testo visibili indesiderati in body (es. "DK -->")
-  document.addEventListener("DOMContentLoaded", () => {
-    [...document.body.childNodes].forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "") {
-        node.textContent = "";
-      }
-    });
-  });
-</script>
-
 <!-- Pulsante Admin -->
-<button class="admin-button" onclick="location.href='admin-login.html'">Admin</button>
+<button class="admin-button" onclick="window.location.href='admin-login.html'">Admin</button>
 
 <!-- Contenitore del form -->
 <div class="container">
@@ -170,7 +159,6 @@
         <option value="camera">Scatta foto</option>
         <option value="gallery">Scegli immagine da galleria</option>
       </select>
-      <!-- Icona fotocamera stilizzata -->
       <svg class="photo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
         <rect x="3" y="7" width="18" height="13" rx="2" ry="2" />
         <circle cx="12" cy="13.5" r="3.5" />
@@ -292,22 +280,3 @@
 
 </body>
 </html>
-DK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-
-  <!-- Configurazione Firebase -->
-  <script src="./scripts/firebase-config.js"></script>
-
-  <script>
-    // Inizializza Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    // Qui puoi iniziare a usare Firebase, ad esempio l’autenticazione
-    // const auth = firebase.auth(app);
-  </script>
-</body>
-</html>
-
-
-
-
