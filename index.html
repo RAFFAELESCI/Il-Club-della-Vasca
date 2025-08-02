@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registrazione Cliente - Bathpipe Fidelity</title>
+  <title>Bathpipe Fidelity</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
     @font-face {
       font-family: 'Ransel';
       src: url('/fonts/Ransel.ttf') format('truetype');
     }
-
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
       padding: 0;
@@ -24,39 +23,20 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      position: relative;
     }
-
-    .admin-button {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: transparent;
-      color: #D69327;
-      border: 2px solid #D69327;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      z-index: 1000;
-    }
-
-    .container {
+    .container, .form-container {
       width: 100%;
       max-width: 400px;
       padding: 30px;
       background-color: #1F1F1E;
       border-radius: 10px;
       text-align: center;
-      position: relative;
-      z-index: 10;
+      display: none;
     }
-
     h1 {
       color: #D69327;
       margin-bottom: 20px;
     }
-
     label {
       display: block;
       text-align: left;
@@ -64,8 +44,9 @@
       color: #D69327;
       font-weight: bold;
     }
-
-    input[type="text"] {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
       width: 100%;
       padding: 10px;
       border-radius: 6px;
@@ -75,50 +56,7 @@
       background-color: #2A2A29;
       color: #EACE3E;
     }
-
-    .photo-section {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #2A2A29;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
-
-    .photo-section select {
-      background: none;
-      border: none;
-      color: #EACE3E;
-      font-size: 1rem;
-      flex: 1;
-    }
-
-    .photo-icon {
-      margin-left: 10px;
-      width: 24px;
-      height: 24px;
-      fill: none;
-      stroke: #EACE3E;
-      stroke-width: 2;
-    }
-
-    #preview {
-      margin-top: 10px;
-      max-width: 100%;
-      border-radius: 6px;
-      display: none;
-    }
-
-    video {
-      width: 100%;
-      border-radius: 6px;
-      margin-top: 10px;
-      display: none;
-    }
-
-    button[type="button"],
-    button[type="submit"] {
+    button {
       background-color: #A2231A;
       color: #EACE3E;
       font-weight: bold;
@@ -130,20 +68,52 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
     button:hover {
       background-color: #D69327;
       color: #171716;
+    }
+    .photo-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #2A2A29;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+    .photo-section select {
+      background: none;
+      border: none;
+      color: #EACE3E;
+      font-size: 1rem;
+      flex: 1;
+    }
+    .photo-icon {
+      margin-left: 10px;
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: #EACE3E;
+      stroke-width: 2;
+    }
+    video, #preview {
+      width: 100%;
+      border-radius: 6px;
+      margin-top: 10px;
+      display: none;
+    }
+    .toggle-link {
+      color: #D69327;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 20px;
+      display: block;
     }
   </style>
 </head>
 <body>
 
-<!-- Pulsante Admin -->
-<button class="admin-button" onclick="window.location.href='admin-login.html'">Admin</button>
-
-<!-- Contenitore del form -->
-<div class="container">
+<div class="container" id="registerSection">
   <h1>Registra Cliente</h1>
   <form id="clientForm">
     <label for="nickname">Nickname</label>
@@ -170,15 +140,29 @@
     <video id="camera" autoplay playsinline></video>
     <canvas id="canvas" style="display: none;"></canvas>
     <img id="preview" />
-
     <button type="button" id="captureBtn" style="display: none;">Scatta</button>
     <button type="submit">Registra Cliente</button>
   </form>
+  <span class="toggle-link" onclick="toggleSections('login')">Vai al login admin</span>
+</div>
+
+<div class="form-container" id="loginSection">
+  <h1>Login Admin</h1>
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="admin@tuodominio.com" required />
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Inserisci password" required />
+    <button type="submit">Accedi</button>
+    <div id="errorMsg"></div>
+  </form>
+  <span class="toggle-link" onclick="toggleSections('register')">Torna a registrazione</span>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
@@ -191,8 +175,8 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
 
-  const form = document.getElementById('clientForm');
   const photoChoice = document.getElementById('photoChoice');
   const galleryInput = document.getElementById('galleryInput');
   const preview = document.getElementById('preview');
@@ -212,7 +196,7 @@
         camera.srcObject = stream;
         camera.style.display = "block";
         captureBtn.style.display = "inline-block";
-      } catch (err) {
+      } catch {
         alert("Impossibile accedere alla fotocamera.");
         photoChoice.value = "";
       }
@@ -242,23 +226,20 @@
     imageDataUrl = canvas.toDataURL('image/png');
     preview.src = imageDataUrl;
     preview.style.display = "block";
-
     camera.srcObject.getTracks().forEach(track => track.stop());
     camera.style.display = "none";
     captureBtn.style.display = "none";
     photoChoice.value = "";
   });
 
-  form.addEventListener('submit', async (e) => {
+  document.getElementById('clientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const nickname = form.nickname.value.trim();
-    const nfc = form.nfc.value.trim();
-
+    const nickname = e.target.nickname.value.trim();
+    const nfc = e.target.nfc.value.trim();
     if (!nickname || !nfc || !imageDataUrl) {
       alert("Compila tutti i campi e aggiungi una foto.");
       return;
     }
-
     try {
       await addDoc(collection(db, "clienti"), {
         nickname,
@@ -267,14 +248,45 @@
         timestamp: new Date()
       });
       alert("Cliente registrato con successo!");
-      form.reset();
+      e.target.reset();
       preview.style.display = "none";
       photoChoice.value = "";
       imageDataUrl = "";
     } catch (error) {
-      console.error("Errore nel salvataggio:", error);
       alert("Errore nel salvataggio del cliente.");
     }
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
+    const errorMsg = document.getElementById('errorMsg');
+    errorMsg.textContent = "";
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "admin.html";
+    } catch (error) {
+      errorMsg.textContent = "Errore login: " + error.message;
+    }
+  });
+
+  function toggleSections(section) {
+    const register = document.getElementById('registerSection');
+    const login = document.getElementById('loginSection');
+
+    if (section === 'register') {
+      register.style.display = 'block';
+      login.style.display = 'none';
+    } else if (section === 'login') {
+      register.style.display = 'none';
+      login.style.display = 'block';
+    }
+  }
+
+  // Inizializza con sezione registrazione visibile
+  document.addEventListener('DOMContentLoaded', () => {
+    toggleSections('register');
   });
 </script>
 
