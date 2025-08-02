@@ -8,8 +8,10 @@
     @font-face {
       font-family: 'Ransel';
       src: url('/fonts/Ransel.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
+    }
+
+    * {
+      box-sizing: border-box;
     }
 
     body {
@@ -22,6 +24,21 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      position: relative;
+    }
+
+    .admin-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: transparent;
+      color: #D69327;
+      border: 2px solid #D69327;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 1000;
     }
 
     .container {
@@ -31,16 +48,8 @@
       background-color: #1F1F1E;
       border-radius: 10px;
       text-align: center;
-      box-sizing: border-box;
       position: relative;
-    }
-
-    .logo-placeholder {
-      width: 80px;
-      height: 80px;
-      background-color: #A2231A;
-      border-radius: 50%;
-      margin: 0 auto 20px;
+      z-index: 10;
     }
 
     h1 {
@@ -89,22 +98,27 @@
       margin-left: 10px;
       width: 24px;
       height: 24px;
-      fill: #EACE3E;
+      fill: none;
+      stroke: #EACE3E;
+      stroke-width: 2;
     }
 
     #preview {
       margin-top: 10px;
       max-width: 100%;
       border-radius: 6px;
+      display: none;
     }
 
     video {
       width: 100%;
       border-radius: 6px;
       margin-top: 10px;
+      display: none;
     }
 
-    button {
+    button[type="button"],
+    button[type="submit"] {
       background-color: #A2231A;
       color: #EACE3E;
       font-weight: bold;
@@ -124,146 +138,160 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="logo-placeholder"></div>
-    <h1>Registra Cliente</h1>
-    <form id="clientForm">
-      <label for="nickname">Nickname</label>
-      <input type="text" id="nickname" name="nickname" placeholder="Es. Mario123" required />
 
-      <label for="nfc">Codice NFC</label>
-      <input type="text" id="nfc" name="nfc" placeholder="Tocca con tessera o inserisci codice" required />
-
-      <label>Foto</label>
-      <div class="photo-section">
-        <select id="photoChoice">
-          <option value="">Scegli un'opzione</option>
-          <option value="camera">Scatta foto</option>
-          <option value="gallery">Scegli immagine da galleria</option>
-        </select>
-        <svg class="photo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6zm9-2h-3.17l-1.42-1.41A2 2 0 0014.17 4H9.83a2 2 0 00-1.42.59L7 6H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z"/></svg>
-      </div>
-
-      <input type="file" id="galleryInput" accept="image/*" style="display: none;" />
-      <video id="camera" autoplay playsinline style="display: none;"></video>
-      <canvas id="canvas" style="display: none;"></canvas>
-      <img id="preview" style="display: none;" />
-
-      <button type="button" id="captureBtn" style="display: none;">Scatta</button>
-      <button type="submit">Registra Cliente</button>
-    </form>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
-      authDomain: "il-club-della-vasca.firebaseapp.com",
-      projectId: "il-club-della-vasca",
-      storageBucket: "il-club-della-vasca.appspot.com",
-      messagingSenderId: "924753798835",
-      appId: "1:924753798835:web:fc21f386c666caf37f32c6"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const form = document.getElementById('clientForm');
-    const photoChoice = document.getElementById('photoChoice');
-    const galleryInput = document.getElementById('galleryInput');
-    const preview = document.getElementById('preview');
-    const camera = document.getElementById('camera');
-    const canvas = document.getElementById('canvas');
-    const captureBtn = document.getElementById('captureBtn');
-    let imageDataUrl = "";
-
-    photoChoice.addEventListener('change', async () => {
-      preview.style.display = "none";
-      captureBtn.style.display = "none";
-      camera.style.display = "none";
-
-      if (photoChoice.value === "camera") {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          camera.srcObject = stream;
-          camera.style.display = "block";
-          captureBtn.style.display = "inline-block";
-        } catch (err) {
-          alert("Impossibile accedere alla fotocamera.");
-          photoChoice.value = "";
-        }
-      } else if (photoChoice.value === "gallery") {
-        galleryInput.click();
+<script>
+  // Rimuove eventuali nodi di testo visibili indesiderati in body (es. "DK -->")
+  document.addEventListener("DOMContentLoaded", () => {
+    [...document.body.childNodes].forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== "") {
+        node.textContent = "";
       }
     });
+  });
+</script>
 
-    galleryInput.addEventListener('change', () => {
-      const file = galleryInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          imageDataUrl = reader.result;
-          preview.src = imageDataUrl;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+<!-- Pulsante Admin -->
+<button class="admin-button" onclick="location.href='admin-login.html'">Admin</button>
 
-    captureBtn.addEventListener('click', () => {
-      const context = canvas.getContext('2d');
-      canvas.width = camera.videoWidth;
-      canvas.height = camera.videoHeight;
-      context.drawImage(camera, 0, 0);
-      imageDataUrl = canvas.toDataURL('image/png');
-      preview.src = imageDataUrl;
-      preview.style.display = "block";
+<!-- Contenitore del form -->
+<div class="container">
+  <h1>Registra Cliente</h1>
+  <form id="clientForm">
+    <label for="nickname">Nickname</label>
+    <input type="text" id="nickname" name="nickname" required placeholder="Es. Mario123" />
 
-      // Ferma la fotocamera
-      camera.srcObject.getTracks().forEach(track => track.stop());
-      camera.style.display = "none";
-      captureBtn.style.display = "none";
-      photoChoice.value = "";
-    });
+    <label for="nfc">Codice NFC</label>
+    <input type="text" id="nfc" name="nfc" required placeholder="Scansiona o digita il codice" />
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nickname = form.nickname.value.trim();
-      const nfc = form.nfc.value.trim();
+    <label>Foto</label>
+    <div class="photo-section">
+      <select id="photoChoice">
+        <option value="">Scegli un'opzione</option>
+        <option value="camera">Scatta foto</option>
+        <option value="gallery">Scegli immagine da galleria</option>
+      </select>
+      <!-- Icona fotocamera stilizzata -->
+      <svg class="photo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <rect x="3" y="7" width="18" height="13" rx="2" ry="2" />
+        <circle cx="12" cy="13.5" r="3.5" />
+        <path d="M7 7l2-3h6l2 3" />
+      </svg>
+    </div>
 
-      if (!nickname || !nfc || !imageDataUrl) {
-        alert("Compila tutti i campi e aggiungi una foto.");
-        return;
-      }
+    <input type="file" id="galleryInput" accept="image/*" style="display: none;" />
+    <video id="camera" autoplay playsinline></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+    <img id="preview" />
 
+    <button type="button" id="captureBtn" style="display: none;">Scatta</button>
+    <button type="submit">Registra Cliente</button>
+  </form>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
+    authDomain: "il-club-della-vasca.firebaseapp.com",
+    projectId: "il-club-della-vasca",
+    storageBucket: "il-club-della-vasca.appspot.com",
+    messagingSenderId: "924753798835",
+    appId: "1:924753798835:web:fc21f386c666caf37f32c6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.getElementById('clientForm');
+  const photoChoice = document.getElementById('photoChoice');
+  const galleryInput = document.getElementById('galleryInput');
+  const preview = document.getElementById('preview');
+  const camera = document.getElementById('camera');
+  const canvas = document.getElementById('canvas');
+  const captureBtn = document.getElementById('captureBtn');
+  let imageDataUrl = "";
+
+  photoChoice.addEventListener('change', async () => {
+    preview.style.display = "none";
+    captureBtn.style.display = "none";
+    camera.style.display = "none";
+
+    if (photoChoice.value === "camera") {
       try {
-        await addDoc(collection(db, "clienti"), {
-          nickname,
-          nfc,
-          foto: imageDataUrl,
-          timestamp: new Date()
-        });
-        alert("Cliente registrato con successo!");
-
-        // Reset form
-        form.reset();
-        preview.style.display = "none";
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        camera.srcObject = stream;
+        camera.style.display = "block";
+        captureBtn.style.display = "inline-block";
+      } catch (err) {
+        alert("Impossibile accedere alla fotocamera.");
         photoChoice.value = "";
-        imageDataUrl = "";
-      } catch (error) {
-        console.error("Errore nel salvataggio:", error);
-        alert("Errore nel salvataggio del cliente.");
       }
-    });
-  </script>
+    } else if (photoChoice.value === "gallery") {
+      galleryInput.click();
+    }
+  });
+
+  galleryInput.addEventListener('change', () => {
+    const file = galleryInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        imageDataUrl = reader.result;
+        preview.src = imageDataUrl;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  captureBtn.addEventListener('click', () => {
+    const context = canvas.getContext('2d');
+    canvas.width = camera.videoWidth;
+    canvas.height = camera.videoHeight;
+    context.drawImage(camera, 0, 0);
+    imageDataUrl = canvas.toDataURL('image/png');
+    preview.src = imageDataUrl;
+    preview.style.display = "block";
+
+    camera.srcObject.getTracks().forEach(track => track.stop());
+    camera.style.display = "none";
+    captureBtn.style.display = "none";
+    photoChoice.value = "";
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nickname = form.nickname.value.trim();
+    const nfc = form.nfc.value.trim();
+
+    if (!nickname || !nfc || !imageDataUrl) {
+      alert("Compila tutti i campi e aggiungi una foto.");
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "clienti"), {
+        nickname,
+        nfc,
+        foto: imageDataUrl,
+        timestamp: new Date()
+      });
+      alert("Cliente registrato con successo!");
+      form.reset();
+      preview.style.display = "none";
+      photoChoice.value = "";
+      imageDataUrl = "";
+    } catch (error) {
+      console.error("Errore nel salvataggio:", error);
+      alert("Errore nel salvataggio del cliente.");
+    }
+  });
+</script>
+
 </body>
 </html>
-
-
-
-
 DK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>

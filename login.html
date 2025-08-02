@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login Admin - Bathpipe Fidelity</title>
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
     body {
@@ -18,7 +17,6 @@
       min-height: 100vh;
       padding: 20px;
     }
-
     form {
       background-color: #1F1F1E;
       padding: 30px;
@@ -28,12 +26,10 @@
       box-sizing: border-box;
       text-align: center;
     }
-
     h1 {
       color: #D69327;
       margin-bottom: 20px;
     }
-
     label {
       display: block;
       text-align: left;
@@ -41,7 +37,6 @@
       font-weight: 700;
       color: #D69327;
     }
-
     input[type="email"],
     input[type="password"] {
       width: 100%;
@@ -53,7 +48,6 @@
       background-color: #2A2A29;
       color: #EACE3E;
     }
-
     button {
       background-color: #A2231A;
       color: #EACE3E;
@@ -66,22 +60,31 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
-
     button:hover {
       background-color: #D69327;
       color: #171716;
     }
-
     #errorMsg {
       margin-top: 15px;
       font-weight: 700;
       color: #A2231A;
     }
   </style>
+</head>
+<body>
+  <form id="loginForm" autocomplete="off">
+    <h1>Login Admin</h1>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="admin@tuodominio.com" required />
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Inserisci password" required />
+    <button type="submit">Accedi</button>
+    <div id="errorMsg"></div>
+  </form>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
@@ -96,49 +99,35 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('loginForm');
-      const errorMsg = document.getElementById('errorMsg');
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        window.location.href = "admin.html";
+      }
+    });
 
-      // Redirect automatico se già loggato
-      onAuthStateChanged(auth, user => {
-        if (user) {
-          window.location.href = "admin.html";
-        }
-      });
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        errorMsg.textContent = '';
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.textContent = '';
 
-        const email = form.email.value.trim();
-        const password = form.password.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value.trim();
 
-        if (!email || !password) {
-          errorMsg.textContent = "Compila tutti i campi.";
-          return;
-        }
+      if (!email || !password) {
+        errorMsg.textContent = "Compila tutti i campi.";
+        return;
+      }
 
-        try {
-          await signInWithEmailAndPassword(auth, email, password);
-          window.location.href = "admin.html";
-        } catch (error) {
-          errorMsg.textContent = "Errore login: " + error.message;
-        }
-      });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "admin.html";
+      } catch (error) {
+        errorMsg.textContent = "Errore login: " + error.message;
+      }
     });
   </script>
-</head>
-<body>
-  <form id="loginForm" autocomplete="off">
-    <h1>Login Admin</h1>
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" placeholder="admin@tuodominio.com" required />
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" placeholder="Inserisci password" required />
-    <button type="submit">Accedi</button>
-    <div id="errorMsg"></div>
-  </form>
 </body>
 </html>
 splay: block;

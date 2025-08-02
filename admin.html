@@ -3,261 +3,432 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin - Dashboard Clienti</title>
+  <title>Admin - Bathpipe Fidelity</title>
   <style>
-    @font-face {
-      font-family: 'Ransel';
-      src: url('/fonts/Ransel.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
-
+    /* Stessi stili del precedente esempio */
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Ransel', 'Montserrat', sans-serif;
+      font-family: 'Montserrat', sans-serif;
       background-color: #171716;
       color: #EACE3E;
+      margin: 0;
+      padding: 20px;
     }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 30px;
-    }
-
     h1 {
-      text-align: center;
       color: #D69327;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
-
-    .controls {
+    #controls {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 15px;
     }
-
-    .controls input[type="search"] {
-      flex-grow: 1;
-      padding: 8px 12px;
-      font-size: 1rem;
+    #searchInput {
+      padding: 8px;
       border-radius: 6px;
       border: none;
+      font-size: 1rem;
+      width: 250px;
       background-color: #2A2A29;
       color: #EACE3E;
-      font-family: 'Ransel', sans-serif;
     }
-
-    .controls button {
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      background-color: #2A2A29;
+      color: #EACE3E;
+      cursor: pointer;
+    }
+    #dataList table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: 0 0 10px rgba(214,147,39,0.5);
+    }
+    #dataList th, #dataList td {
+      border: 2px solid #D69327;
+      padding: 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    #dataList th {
+      background-color: #2A2A29;
+      cursor: pointer;
+      user-select: none;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #D69327;
+      object-fit: cover;
+    }
+    td.actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
       background-color: #A2231A;
       color: #EACE3E;
+      font-weight: 700;
       border: none;
       padding: 8px 14px;
       border-radius: 6px;
       cursor: pointer;
-      font-family: 'Ransel', sans-serif;
-      white-space: nowrap;
       transition: background-color 0.3s ease;
+      min-width: 70px;
     }
-
-    .controls button:hover {
+    button:hover {
       background-color: #D69327;
       color: #171716;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #1F1F1E;
-      border-radius: 10px;
-      overflow: hidden;
+    #logoutBtn {
+      margin-bottom: 15px;
+      min-width: 100px;
     }
-
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid #333;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: #2A2A29;
-      color: #EACE3E;
-    }
-
-    td img {
-      width: 50px;
-      height: 50px;
-      border-radius: 6px;
-      object-fit: cover;
-    }
-
-    button.action-btn {
-      background-color: #A2231A;
-      color: #EACE3E;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 6px;
-      font-family: 'Ransel', sans-serif;
-      transition: background-color 0.3s ease;
-    }
-
-    button.action-btn:hover {
-      background-color: #D69327;
-      color: #171716;
-    }
-
-    .actions {
-      display: flex;
+    #editModal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
       align-items: center;
     }
-
-    .input-inline {
-      background-color: #2A2A29;
-      border: none;
-      color: #EACE3E;
-      padding: 4px 8px;
-      border-radius: 4px;
+    #editModalContent {
+      background-color: #1F1F1E;
+      padding: 20px;
+      border-radius: 8px;
       width: 90%;
-      font-family: 'Ransel', sans-serif;
+      max-width: 400px;
+      color: #EACE3E;
+      position: relative;
+      box-shadow: 0 0 15px #D69327;
+    }
+    #editModalContent label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 700;
+      color: #D69327;
+      text-align: left;
+    }
+    #editModalContent input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 5px;
+      font-size: 1rem;
+      background-color: #2A2A29;
+      color: #EACE3E;
+    }
+    #editModalContent button {
+      width: 100%;
+      margin-top: 15px;
+    }
+    #closeModal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #D69327;
+      font-size: 1.5rem;
+      cursor: pointer;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Dashboard Clienti</h1>
 
-    <div class="controls">
-      <input type="search" id="searchInput" placeholder="Cerca per nickname o codice NFC..." autocomplete="off" />
-      <button id="sortBtn" title="Ordina per data di registrazione">Ordina: Più recenti</button>
-    </div>
+  <h1>Area Admin</h1>
+  <button id="logoutBtn">Logout</button>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Foto</th>
-          <th>Nickname</th>
-          <th>Codice NFC</th>
-          <th>Registrato il</th>
-          <th>Drink consumati</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody id="clientList"></tbody>
-    </table>
+  <div id="controls">
+    <input type="text" id="searchInput" placeholder="Cerca per nickname o codice NFC..." />
+    <select id="sortField">
+      <option value="timestamp">Ordina per Data Registrazione</option>
+      <option value="drinkCount">Ordina per Drink Count</option>
+    </select>
+    <select id="sortOrder">
+      <option value="asc">Ascendente</option>
+      <option value="desc" selected>Discendente</option>
+    </select>
   </div>
 
-  <!-- Firebase Modular SDK -->
+  <div id="dataList">Caricamento dati...</div>
+
+  <!-- Modale modifica -->
+  <div id="editModal">
+    <div id="editModalContent">
+      <button id="closeModal">&times;</button>
+      <h2>Modifica Utente</h2>
+      <form id="editForm">
+        <label for="editFoto">URL Foto</label>
+        <input type="text" id="editFoto" name="editFoto" placeholder="URL immagine" />
+
+        <label for="editNickname">Nickname</label>
+        <input type="text" id="editNickname" name="editNickname" required />
+
+        <label for="editCodiceNFC">Codice NFC</label>
+        <input type="text" id="editCodiceNFC" name="editCodiceNFC" required />
+
+        <label for="editDataRegistrazione">Data Registrazione</label>
+        <input type="datetime-local" id="editDataRegistrazione" name="editDataRegistrazione" required />
+
+        <label for="editDrinkCount">Drink Count</label>
+        <input type="number" id="editDrinkCount" name="editDrinkCount" min="0" required />
+
+        <button type="submit">Salva Modifiche</button>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    import { firebaseConfig } from "./scripts/firebase-config.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
+      authDomain: "il-club-della-vasca.firebaseapp.com",
+      projectId: "il-club-della-vasca",
+      storageBucket: "il-club-della-vasca.appspot.com",
+      messagingSenderId: "924753798835",
+      appId: "1:924753798835:web:fc21f386c666caf37f32c6",
+      measurementId: "G-EZHK6WKYWW"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    const clientList = document.getElementById("clientList");
-    const searchInput = document.getElementById("searchInput");
-    const sortBtn = document.getElementById("sortBtn");
+    const dataList = document.getElementById('dataList');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const editModal = document.getElementById('editModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const editForm = document.getElementById('editForm');
 
-    let clientsData = [];
-    let sortNewestFirst = true;
+    const searchInput = document.getElementById('searchInput');
+    const sortFieldSelect = document.getElementById('sortField');
+    const sortOrderSelect = document.getElementById('sortOrder');
 
-    async function loadClients() {
-      const querySnapshot = await getDocs(collection(db, "clienti"));
-      clientsData = [];
+    let currentEditDocId = null;
+    let clientiData = [];
 
-      querySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        clientsData.push({
-          id: docSnap.id,
-          nickname: data.nickname || "",
-          nfc: data.nfc || "",
-          foto: data.foto || "",
-          timestamp: data.timestamp?.toDate() || null,
-          drinkCount: data.drinkCount || 0
-        });
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        loadData();
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
       });
+    });
 
-      renderClients();
-    }
+    closeModalBtn.addEventListener('click', () => {
+      editModal.style.display = 'none';
+    });
 
-    function renderClients() {
-      clientList.innerHTML = "";
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-      const searchTerm = searchInput.value.trim().toLowerCase();
-      let filtered = clientsData.filter(c =>
-        c.nickname.toLowerCase().includes(searchTerm) ||
-        c.nfc.toLowerCase().includes(searchTerm)
-      );
+      if (!currentEditDocId) return;
 
-      filtered.sort((a, b) => {
-        if (!a.timestamp) return 1;
-        if (!b.timestamp) return -1;
-        return sortNewestFirst ? b.timestamp - a.timestamp : a.timestamp - b.timestamp;
-      });
+      const foto = editForm.editFoto.value.trim();
+      const nickname = editForm.editNickname.value.trim();
+      const nfc = editForm.editCodiceNFC.value.trim();
+      const dataRegistrazioneStr = editForm.editDataRegistrazione.value;
+      const drinkCount = parseInt(editForm.editDrinkCount.value, 10);
 
-      filtered.forEach(client => {
-        const tr = document.createElement("tr");
-        const dateStr = client.timestamp ? client.timestamp.toLocaleString() : "-";
-
-        tr.innerHTML = `
-          <td><img src="${client.foto}" alt="Foto cliente" /></td>
-          <td><input class="input-inline" type="text" value="${client.nickname}" id="nick-${client.id}" /></td>
-          <td><input class="input-inline" type="text" value="${client.nfc}" id="nfc-${client.id}" /></td>
-          <td>${dateStr}</td>
-          <td>${client.drinkCount}</td>
-          <td class="actions">
-            <button class="action-btn" onclick="updateClient('${client.id}')">Salva</button>
-            <button class="action-btn" onclick="deleteClient('${client.id}')">Elimina</button>
-          </td>
-        `;
-        clientList.appendChild(tr);
-      });
-    }
-
-    window.updateClient = async function(id) {
-      const nickname = document.getElementById(`nick-${id}`).value.trim();
-      const nfc = document.getElementById(`nfc-${id}`).value.trim();
-
-      if (!nickname || !nfc) {
-        alert("Nickname e codice NFC non possono essere vuoti.");
+      if (!nickname || !nfc || !dataRegistrazioneStr || isNaN(drinkCount)) {
+        alert("Compila tutti i campi correttamente.");
         return;
       }
 
-      await updateDoc(doc(db, "clienti", id), {
-        nickname,
-        nfc
-      });
+      try {
+        const docRef = doc(db, "clienti", currentEditDocId);
+        const dataRegistrazione = new Date(dataRegistrazioneStr);
 
-      alert("Cliente aggiornato con successo!");
-      await loadClients();
-    };
+        await updateDoc(docRef, {
+          foto,
+          nickname,
+          nfc,
+          timestamp: Timestamp.fromDate(dataRegistrazione),
+          drinkCount
+        });
 
-    window.deleteClient = async function(id) {
-      if (confirm("Sei sicuro di voler eliminare questo cliente?")) {
-        await deleteDoc(doc(db, "clienti", id));
-        await loadClients();
+        alert("Utente aggiornato con successo!");
+        editModal.style.display = "none";
+        loadData();
+      } catch (error) {
+        alert("Errore aggiornamento: " + error.message);
+        console.error(error);
       }
-    };
-
-    searchInput.addEventListener("input", renderClients);
-
-    sortBtn.addEventListener("click", () => {
-      sortNewestFirst = !sortNewestFirst;
-      sortBtn.textContent = sortNewestFirst ? "Ordina: Più recenti" : "Ordina: Più vecchi";
-      renderClients();
     });
 
-    loadClients();
+    searchInput.addEventListener('input', () => {
+      renderTable(filterAndSort(clientiData));
+    });
+
+    sortFieldSelect.addEventListener('change', () => {
+      renderTable(filterAndSort(clientiData));
+    });
+
+    sortOrderSelect.addEventListener('change', () => {
+      renderTable(filterAndSort(clientiData));
+    });
+
+    async function loadData() {
+      try {
+        const colRef = collection(db, "clienti");
+        const snapshot = await getDocs(colRef);
+
+        clientiData = [];
+
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+
+          clientiData.push({
+            id: docSnap.id,
+            foto: data.foto || '',
+            nickname: data.nickname || '',
+            nfc: data.nfc || '',
+            timestamp: data.timestamp ? data.timestamp.toDate() : null,
+            drinkCount: data.drinkCount || 0
+          });
+        });
+
+        if (clientiData.length === 0) {
+          dataList.innerHTML = "<p>Nessun dato trovato.</p>";
+          return;
+        }
+
+        renderTable(clientiData);
+
+      } catch (error) {
+        dataList.innerHTML = `<p>Errore caricamento dati: ${error.message}</p>`;
+      }
+    }
+
+    function filterAndSort(data) {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      const field = sortFieldSelect.value;
+      const order = sortOrderSelect.value;
+
+      let filtered = data.filter(item => {
+        return (
+          item.nickname.toLowerCase().includes(searchTerm) ||
+          item.nfc.toLowerCase().includes(searchTerm)
+        );
+      });
+
+      filtered.sort((a, b) => {
+        let valA = a[field];
+        let valB = b[field];
+
+        if (field === "timestamp") {
+          valA = valA ? valA.getTime() : 0;
+          valB = valB ? valB.getTime() : 0;
+        }
+
+        if (valA < valB) return order === 'asc' ? -1 : 1;
+        if (valA > valB) return order === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      return filtered;
+    }
+
+    function renderTable(data) {
+      let html = `<table>
+        <thead>
+          <tr>
+            <th>Foto</th>
+            <th>Nickname</th>
+            <th>Codice NFC</th>
+            <th>Data Registrazione</th>
+            <th>Drink Count</th>
+            <th>Azioni</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      data.forEach(item => {
+        const dateStr = item.timestamp ? item.timestamp.toLocaleString('it-IT', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-';
+
+        html += `
+          <tr>
+            <td><img src="${item.foto || 'https://via.placeholder.com/50'}" alt="Foto ${item.nickname}" /></td>
+            <td>${item.nickname}</td>
+            <td>${item.nfc}</td>
+            <td>${dateStr}</td>
+            <td>${item.drinkCount}</td>
+            <td class="actions">
+              <button onclick="openEditModal('${item.id}')">Modifica</button>
+              <button onclick="deleteUser('${item.id}')">Elimina</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+
+      dataList.innerHTML = html;
+    }
+
+    window.openEditModal = async function(docId) {
+      try {
+        const docRef = doc(db, "clienti", docId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          currentEditDocId = docId;
+          editForm.editFoto.value = data.foto || '';
+          editForm.editNickname.value = data.nickname || '';
+          editForm.editCodiceNFC.value = data.nfc || '';
+
+          if(data.timestamp) {
+            const date = data.timestamp.toDate();
+            const localISOTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0,16);
+            editForm.editDataRegistrazione.value = localISOTime;
+          } else {
+            editForm.editDataRegistrazione.value = '';
+          }
+
+          editForm.editDrinkCount.value = data.drinkCount || 0;
+
+          editModal.style.display = "flex";
+        } else {
+          alert("Utente non trovato.");
+        }
+      } catch (error) {
+        alert("Errore nel caricamento dati utente: " + error.message);
+      }
+    }
+
+    window.deleteUser = async function(docId) {
+      if (confirm("Sei sicuro di voler eliminare questo utente?")) {
+        try {
+          await deleteDoc(doc(db, "clienti", docId));
+          alert("Utente eliminato");
+          loadData();
+        } catch (error) {
+          alert("Errore eliminazione: " + error.message);
+          console.error(error);
+        }
+      }
+    }
   </script>
 </body>
 </html>
-
-
-
