@@ -143,7 +143,7 @@
     <button type="button" id="captureBtn" style="display: none;">Scatta</button>
     <button type="submit">Registra Cliente</button>
   </form>
-  <span class="toggle-link" onclick="toggleSections('login')">Vai al login admin</span>
+  <span class="toggle-link" id="goToLogin">Vai al login admin</span>
 </div>
 
 <div class="form-container" id="loginSection">
@@ -156,7 +156,7 @@
     <button type="submit">Accedi</button>
     <div id="errorMsg"></div>
   </form>
-  <span class="toggle-link" onclick="toggleSections('register')">Torna a registrazione</span>
+  <span class="toggle-link" id="goToRegister">Torna a registrazione</span>
 </div>
 
 <script type="module">
@@ -176,6 +176,19 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
+
+  function toggleSections(section) {
+    document.getElementById('registerSection').style.display = section === 'register' ? 'block' : 'none';
+    document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
+  }
+
+  document.getElementById('goToLogin').addEventListener('click', () => {
+    toggleSections('login');
+  });
+
+  document.getElementById('goToRegister').addEventListener('click', () => {
+    toggleSections('register');
+  });
 
   const photoChoice = document.getElementById('photoChoice');
   const galleryInput = document.getElementById('galleryInput');
@@ -265,29 +278,14 @@
     errorMsg.textContent = "";
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = "admin.html";
+      alert("Accesso eseguito con successo!");
+      window.location.href = "admin.html";  // <-- REDIRECT dopo il login
     } catch (error) {
       errorMsg.textContent = "Errore login: " + error.message;
     }
   });
 
-  function toggleSections(section) {
-    const register = document.getElementById('registerSection');
-    const login = document.getElementById('loginSection');
-
-    if (section === 'register') {
-      register.style.display = 'block';
-      login.style.display = 'none';
-    } else if (section === 'login') {
-      register.style.display = 'none';
-      login.style.display = 'block';
-    }
-  }
-
-  // Inizializza con sezione registrazione visibile
-  document.addEventListener('DOMContentLoaded', () => {
-    toggleSections('register');
-  });
+  toggleSections('register');
 </script>
 
 </body>
