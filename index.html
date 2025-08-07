@@ -1,115 +1,144 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bathpipe Fidelity</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
-    @font-face {
-      font-family: 'Ransel';
-      src: url('/fonts/Ransel.ttf') format('truetype');
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Ransel', 'Montserrat', sans-serif;
-      background-color: #171716;
-      color: #EACE3E;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container, .form-container {
-      width: 100%;
-      max-width: 400px;
-      padding: 30px;
-      background-color: #1F1F1E;
-      border-radius: 10px;
-      text-align: center;
-      display: none;
-    }
-    h1 {
-      color: #D69327;
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      text-align: left;
-      margin-bottom: 5px;
-      color: #D69327;
-      font-weight: bold;
-    }
-    input[type="text"],
-    input[type="email"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      margin-bottom: 15px;
-      font-size: 1rem;
-      background-color: #2A2A29;
-      color: #EACE3E;
-    }
-    button {
-      background-color: #A2231A;
-      color: #EACE3E;
-      font-weight: bold;
-      border: none;
-      padding: 12px;
-      width: 100%;
-      font-size: 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #D69327;
-      color: #171716;
-    }
-    .photo-section {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background-color: #2A2A29;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
-    .photo-section select {
-      background: none;
-      border: none;
-      color: #EACE3E;
-      font-size: 1rem;
-      flex: 1;
-    }
-    .photo-icon {
-      margin-left: 10px;
-      width: 24px;
-      height: 24px;
-      fill: none;
-      stroke: #EACE3E;
-      stroke-width: 2;
-    }
-    video, #preview {
-      width: 100%;
-      border-radius: 6px;
-      margin-top: 10px;
-      display: none;
-    }
-    .toggle-link {
-      color: #D69327;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: 20px;
-      display: block;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bathpipe Fidelity</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+  @font-face {
+    font-family: 'Ransel';
+    src: url('/fonts/Ransel.ttf') format('truetype');
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Ransel', 'Montserrat', sans-serif;
+    background-color: #171716;
+    color: #EACE3E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container, .form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    background-color: #1F1F1E;
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+  }
+  h1 {
+    color: #D69327;
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+    color: #D69327;
+    font-weight: bold;
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    background-color: #2A2A29;
+    color: #EACE3E;
+    font-family: 'Ransel', 'Montserrat', sans-serif;
+  }
+  button {
+    background-color: #A2231A;
+    color: #EACE3E;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  button:hover:not(:disabled) {
+    background-color: #D69327;
+    color: #171716;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .photo-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #2A2A29;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  .photo-section select {
+    background: none;
+    border: none;
+    color: #EACE3E;
+    font-size: 1rem;
+    flex: 1;
+  }
+  .photo-icon {
+    margin-left: 10px;
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #EACE3E;
+    stroke-width: 2;
+  }
+  video, #preview {
+    width: 100%;
+    border-radius: 6px;
+    margin-top: 10px;
+    display: none;
+  }
+  .toggle-link {
+    color: #D69327;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 20px;
+    display: block;
+  }
+  /* MODALE */
+  #nfcModal {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(23,23,22,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: 10px;
+    color: #EACE3E;
+    font-size: 1.2rem;
+  }
+  #nfcModal button {
+    width: auto;
+    margin-top: 20px;
+  }
+  #nfcStatus {
+    margin-top: 15px;
+    min-height: 1.5em;
+  }
+</style>
 </head>
 <body>
 
@@ -119,8 +148,9 @@
     <label for="nickname">Nickname</label>
     <input type="text" id="nickname" name="nickname" required placeholder="Es. Mario123" />
 
-    <label for="nfc">Codice NFC</label>
-    <input type="text" id="nfc" name="nfc" required placeholder="Scansiona o digita il codice" />
+    <label>Codice NFC</label>
+    <button type="button" id="btnReadNFC">Leggi NFC</button>
+    <input type="hidden" id="nfcCode" name="nfcCode" />
 
     <label>Foto</label>
     <div class="photo-section">
@@ -141,6 +171,7 @@
     <canvas id="canvas" style="display: none;"></canvas>
     <img id="preview" />
     <button type="button" id="captureBtn" style="display: none;">Scatta</button>
+
     <button type="submit">Registra Cliente</button>
   </form>
   <span class="toggle-link" id="goToLogin">Vai al login admin</span>
@@ -157,6 +188,15 @@
     <div id="errorMsg"></div>
   </form>
   <span class="toggle-link" id="goToRegister">Torna a registrazione</span>
+</div>
+
+<!-- MODALE NFC -->
+<div id="nfcModal" role="dialog" aria-modal="true" aria-labelledby="nfcTitle" aria-describedby="nfcDesc">
+  <h2 id="nfcTitle">Lettura NFC</h2>
+  <p id="nfcDesc">Avvicina il tag NFC al dispositivo o simula la lettura.</p>
+  <div id="nfcStatus">In attesa...</div>
+  <button id="btnSimulateNFC">Simula Lettura</button>
+  <button id="btnCancelNFC">Annulla</button>
 </div>
 
 <script type="module">
@@ -190,6 +230,7 @@
     toggleSections('register');
   });
 
+  // Foto gestione (camera e gallery)
   const photoChoice = document.getElementById('photoChoice');
   const galleryInput = document.getElementById('galleryInput');
   const preview = document.getElementById('preview');
@@ -245,14 +286,86 @@
     photoChoice.value = "";
   });
 
+  // Gestione NFC con modale
+  const btnReadNFC = document.getElementById('btnReadNFC');
+  const nfcModal = document.getElementById('nfcModal');
+  const btnSimulateNFC = document.getElementById('btnSimulateNFC');
+  const btnCancelNFC = document.getElementById('btnCancelNFC');
+  const nfcStatus = document.getElementById('nfcStatus');
+  const nfcCodeInput = document.getElementById('nfcCode');
+
+  let ndef = null;
+  let abortController = null;
+
+  // Se NFC non supportato disabilito bottone
+  if (!("NDEFReader" in window)) {
+    btnReadNFC.disabled = true;
+    btnReadNFC.textContent = "NFC non supportato";
+  }
+
+  btnReadNFC.addEventListener('click', async () => {
+    nfcStatus.textContent = "Avvicina il tag NFC al dispositivo...";
+    nfcModal.style.display = "flex";
+
+    if ("NDEFReader" in window) {
+      try {
+        ndef = new NDEFReader();
+        abortController = new AbortController();
+        await ndef.scan({ signal: abortController.signal });
+        nfcStatus.textContent = "In ascolto NFC...";
+
+        ndef.onreading = (event) => {
+          const decoder = new TextDecoder();
+          for (const record of event.message.records) {
+            const data = decoder.decode(record.data);
+            nfcCodeInput.value = data;
+            nfcStatus.textContent = "Codice NFC letto: " + data;
+            // Stop scan e chiudo modale
+            abortController.abort();
+            nfcModal.style.display = "none";
+            alert("Lettura NFC avvenuta con successo.");
+            break;
+          }
+        };
+
+        ndef.onreadingerror = () => {
+          nfcStatus.textContent = "Errore nella lettura NFC.";
+        };
+      } catch (error) {
+        nfcStatus.textContent = "Errore attivazione NFC: " + error.message;
+      }
+    }
+  });
+
+  btnSimulateNFC.addEventListener('click', () => {
+    const fakeCode = "SIMULATO-123456789";
+    nfcCodeInput.value = fakeCode;
+    nfcStatus.textContent = "Lettura NFC simulata: " + fakeCode;
+    setTimeout(() => {
+      nfcModal.style.display = "none";
+      alert("Lettura NFC simulata completata.");
+    }, 1000);
+  });
+
+  btnCancelNFC.addEventListener('click', () => {
+    if (abortController) {
+      abortController.abort();
+    }
+    nfcModal.style.display = "none";
+    nfcStatus.textContent = "";
+  });
+
+  // Invio form
   document.getElementById('clientForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const nickname = e.target.nickname.value.trim();
-    const nfc = e.target.nfc.value.trim();
+    const nfc = nfcCodeInput.value.trim();
+
     if (!nickname || !nfc || !imageDataUrl) {
       alert("Compila tutti i campi e aggiungi una foto.");
       return;
     }
+
     try {
       await addDoc(collection(db, "clienti"), {
         nickname,
@@ -265,11 +378,13 @@
       preview.style.display = "none";
       photoChoice.value = "";
       imageDataUrl = "";
+      nfcCodeInput.value = "";
     } catch (error) {
       alert("Errore nel salvataggio del cliente.");
     }
   });
 
+  // Login admin
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = e.target.email.value.trim();
@@ -279,7 +394,7 @@
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert("Accesso eseguito con successo!");
-      window.location.href = "admin.html";  // <-- REDIRECT dopo il login
+      window.location.href = "admin.html";
     } catch (error) {
       errorMsg.textContent = "Errore login: " + error.message;
     }
