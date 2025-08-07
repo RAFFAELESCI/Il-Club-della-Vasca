@@ -57,6 +57,10 @@
     color: #EACE3E;
     font-family: 'Ransel', 'Montserrat', sans-serif;
   }
+  input[readonly] {
+    background-color: #3A3A39;
+    cursor: default;
+  }
   button {
     background-color: #A2231A;
     color: #EACE3E;
@@ -148,9 +152,9 @@
     <label for="nickname">Nickname</label>
     <input type="text" id="nickname" name="nickname" required placeholder="Es. Mario123" />
 
-    <label>Codice NFC</label>
+    <label for="nfcCode">Codice NFC</label>
     <button type="button" id="btnReadNFC">Leggi NFC</button>
-    <input type="hidden" id="nfcCode" name="nfcCode" />
+    <input type="text" id="nfcCode" name="nfcCode" readonly placeholder="Codice NFC rilevato" />
 
     <label>Foto</label>
     <div class="photo-section">
@@ -193,9 +197,8 @@
 <!-- MODALE NFC -->
 <div id="nfcModal" role="dialog" aria-modal="true" aria-labelledby="nfcTitle" aria-describedby="nfcDesc">
   <h2 id="nfcTitle">Lettura NFC</h2>
-  <p id="nfcDesc">Avvicina il tag NFC al dispositivo o simula la lettura.</p>
+  <p id="nfcDesc">Avvicina il tag NFC al dispositivo per associare il codice all’utente.</p>
   <div id="nfcStatus">In attesa...</div>
-  <button id="btnSimulateNFC">Simula Lettura</button>
   <button id="btnCancelNFC">Annulla</button>
 </div>
 
@@ -222,185 +225,167 @@
     document.getElementById('loginSection').style.display = section === 'login' ? 'block' : 'none';
   }
 
-  document.getElementById('goToLogin').addEventListener('click', () => {
-    toggleSections('login');
-  });
+  // Mostra inizialmente la registrazione
+  toggleSections('register');
 
-  document.getElementById('goToRegister').addEventListener('click', () => {
-    toggleSections('register');
-  });
+  // Eventi toggle login/registrazione
+  document.getElementById('goToLogin').addEventListener('click', () => toggleSections('login'));
+  document.getElementById('goToRegister').addEventListener('click', () => toggleSections('register'));
 
-  // Foto gestione (camera e gallery)
-  const photoChoice = document.getElementById('photoChoice');
-  const galleryInput = document.getElementById('galleryInput');
-  const preview = document.getElementById('preview');
-  const camera = document.getElementById('camera');
-  const canvas = document.getElementById('canvas');
-  const captureBtn = document.getElementById('captureBtn');
-  let imageDataUrl = "";
+  // NFC modal elementi
+  const nfcModal = document.getElementById('nfcModal');
+  const btnReadNFC = document.getElementById('btnReadNFC');
+  const btnCancelNFC = document.getElementById('btnCancelNFC');
+  const nfcStatus = document.getElementById('nfcStatus');
+  const nfcCodeInput = document.getElementById('nfcCode');
 
-  photoChoice.addEventListener('change', async () => {
-    preview.style.display = "none";
-    captureBtn.style.display = "none";
-    camera.style.display = "none";
+  let nfcAbortController;
 
-    if (photoChoice.value === "camera") {
+  btnReadNFC.addEventListener('click', async () => {
+    // Mostra modale NFC
+    nfcStatus.textContent = 'In attesa... Avvicina il tag NFC.';
+    nfcModal.style.display = 'flex';
+
+    if ('NDEFReader' in window) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        camera.srcObject = stream;
-        camera.style.display = "block";
-        captureBtn.style.display = "inline-block";
-      } catch {
-        alert("Impossibile accedere alla fotocamera.");
-        photoChoice.value = "";
+        const ndef = new NDEFReader();
+        nfcAbortController = new AbortController();
+        await ndef.scan({ signal: nfcAbortController.signal });
+        ndef.onreadingerror = () => {
+          nfcStatus.textContent = 'Errore nella lettura NFC.';
+        };
+        ndef.onreading = event => {
+          let serial = event.serialNumber || null;
+          if (serial) {
+            nfcStatus.textContent = 'Codice NFC letto: ' + serial;
+            nfcCodeInput.value = serial;
+            setTimeout(() => {
+              nfcModal.style.display = 'none';
+              nfcAbortController.abort();
+            }, 1000);
+          } else {
+            nfcStatus.textContent = 'Nessun codice NFC rilevato.';
+          }
+        };
+      } catch (error) {
+        nfcStatus.textContent = 'Errore durante la scansione NFC: ' + error.message;
       }
-    } else if (photoChoice.value === "gallery") {
-      galleryInput.click();
+    } else {
+      nfcStatus.textContent = 'NFC non supportato su questo dispositivo.';
     }
   });
 
-  galleryInput.addEventListener('change', () => {
-    const file = galleryInput.files[0];
+  btnCancelNFC.addEventListener('click', () => {
+    if (nfcAbortController) {
+      nfcAbortController.abort();
+    }
+    nfcModal.style.display = 'none';
+  });
+
+  // Form registrazione
+  const clientForm = document.getElementById('clientForm');
+  clientForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const nickname = clientForm.nickname.value.trim();
+    const nfcCode = clientForm.nfcCode.value.trim();
+
+    if (!nickname) {
+      alert('Inserisci un nickname valido');
+      return;
+    }
+    if (!nfcCode) {
+      alert('Devi associare un codice NFC');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "users"), {
+        nickname,
+        nfcCode,
+        timestamp: new Date()
+      });
+      alert('Cliente registrato con successo!');
+      clientForm.reset();
+      nfcCodeInput.value = '';
+    } catch (error) {
+      alert('Errore durante la registrazione: ' + error.message);
+    }
+  });
+
+  // Form login admin
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = loginForm.email.value.trim();
+    const password = loginForm.password.value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert('Accesso effettuato con successo!');
+      loginForm.reset();
+      // Qui puoi inserire il redirect o altre azioni post login
+    } catch (error) {
+      document.getElementById('errorMsg').textContent = 'Errore login: ' + error.message;
+    }
+  });
+
+  // Gestione scelta foto (camera o gallery)
+  const photoChoice = document.getElementById('photoChoice');
+  const galleryInput = document.getElementById('galleryInput');
+  const cameraVideo = document.getElementById('camera');
+  const canvas = document.getElementById('canvas');
+  const preview = document.getElementById('preview');
+  const captureBtn = document.getElementById('captureBtn');
+  let stream;
+
+  photoChoice.addEventListener('change', async () => {
+    preview.style.display = 'none';
+    canvas.style.display = 'none';
+    captureBtn.style.display = 'none';
+    galleryInput.style.display = 'none';
+    cameraVideo.style.display = 'none';
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+
+    if (photoChoice.value === 'gallery') {
+      galleryInput.style.display = 'block';
+    } else if (photoChoice.value === 'camera') {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraVideo.srcObject = stream;
+        cameraVideo.style.display = 'block';
+        captureBtn.style.display = 'block';
+      } catch (err) {
+        alert('Errore accesso fotocamera: ' + err.message);
+      }
+    }
+  });
+
+  galleryInput.addEventListener('change', e => {
+    const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => {
-        imageDataUrl = reader.result;
-        preview.src = imageDataUrl;
-        preview.style.display = "block";
+      reader.onload = function(evt) {
+        preview.src = evt.target.result;
+        preview.style.display = 'block';
       };
       reader.readAsDataURL(file);
     }
   });
 
   captureBtn.addEventListener('click', () => {
+    if (!stream) return;
     const context = canvas.getContext('2d');
-    canvas.width = camera.videoWidth;
-    canvas.height = camera.videoHeight;
-    context.drawImage(camera, 0, 0);
-    imageDataUrl = canvas.toDataURL('image/png');
-    preview.src = imageDataUrl;
-    preview.style.display = "block";
-    camera.srcObject.getTracks().forEach(track => track.stop());
-    camera.style.display = "none";
-    captureBtn.style.display = "none";
-    photoChoice.value = "";
+    canvas.width = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    context.drawImage(cameraVideo, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
   });
-
-  // Gestione NFC con modale
-  const btnReadNFC = document.getElementById('btnReadNFC');
-  const nfcModal = document.getElementById('nfcModal');
-  const btnSimulateNFC = document.getElementById('btnSimulateNFC');
-  const btnCancelNFC = document.getElementById('btnCancelNFC');
-  const nfcStatus = document.getElementById('nfcStatus');
-  const nfcCodeInput = document.getElementById('nfcCode');
-
-  let ndef = null;
-  let abortController = null;
-
-  // Se NFC non supportato disabilito bottone
-  if (!("NDEFReader" in window)) {
-    btnReadNFC.disabled = true;
-    btnReadNFC.textContent = "NFC non supportato";
-  }
-
-  btnReadNFC.addEventListener('click', async () => {
-    nfcStatus.textContent = "Avvicina il tag NFC al dispositivo...";
-    nfcModal.style.display = "flex";
-
-    if ("NDEFReader" in window) {
-      try {
-        ndef = new NDEFReader();
-        abortController = new AbortController();
-        await ndef.scan({ signal: abortController.signal });
-        nfcStatus.textContent = "In ascolto NFC...";
-
-        ndef.onreading = (event) => {
-          const decoder = new TextDecoder();
-          for (const record of event.message.records) {
-            const data = decoder.decode(record.data);
-            nfcCodeInput.value = data;
-            nfcStatus.textContent = "Codice NFC letto: " + data;
-            // Stop scan e chiudo modale
-            abortController.abort();
-            nfcModal.style.display = "none";
-            alert("Lettura NFC avvenuta con successo.");
-            break;
-          }
-        };
-
-        ndef.onreadingerror = () => {
-          nfcStatus.textContent = "Errore nella lettura NFC.";
-        };
-      } catch (error) {
-        nfcStatus.textContent = "Errore attivazione NFC: " + error.message;
-      }
-    }
-  });
-
-  btnSimulateNFC.addEventListener('click', () => {
-    const fakeCode = "SIMULATO-123456789";
-    nfcCodeInput.value = fakeCode;
-    nfcStatus.textContent = "Lettura NFC simulata: " + fakeCode;
-    setTimeout(() => {
-      nfcModal.style.display = "none";
-      alert("Lettura NFC simulata completata.");
-    }, 1000);
-  });
-
-  btnCancelNFC.addEventListener('click', () => {
-    if (abortController) {
-      abortController.abort();
-    }
-    nfcModal.style.display = "none";
-    nfcStatus.textContent = "";
-  });
-
-  // Invio form
-  document.getElementById('clientForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nickname = e.target.nickname.value.trim();
-    const nfc = nfcCodeInput.value.trim();
-
-    if (!nickname || !nfc || !imageDataUrl) {
-      alert("Compila tutti i campi e aggiungi una foto.");
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, "clienti"), {
-        nickname,
-        nfc,
-        foto: imageDataUrl,
-        timestamp: new Date()
-      });
-      alert("Cliente registrato con successo!");
-      e.target.reset();
-      preview.style.display = "none";
-      photoChoice.value = "";
-      imageDataUrl = "";
-      nfcCodeInput.value = "";
-    } catch (error) {
-      alert("Errore nel salvataggio del cliente.");
-    }
-  });
-
-  // Login admin
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const password = e.target.password.value.trim();
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.textContent = "";
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("Accesso eseguito con successo!");
-      window.location.href = "admin.html";
-    } catch (error) {
-      errorMsg.textContent = "Errore login: " + error.message;
-    }
-  });
-
-  toggleSections('register');
 </script>
 
 </body>
