@@ -154,6 +154,9 @@
     <label for="nickname">Nickname</label>
     <input type="text" id="nickname" name="nickname" required placeholder="Es. Mario123" />
 
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required placeholder="esempio@email.com" />
+
     <label for="nfcCode">Codice NFC</label>
     <button type="button" id="btnReadNFC">Leggi NFC</button>
     <input type="text" id="nfcCode" name="nfcCode" readonly placeholder="Codice NFC rilevato" />
@@ -175,7 +178,7 @@
     <input type="file" id="galleryInput" accept="image/*" style="display: none;" />
     <video id="camera" autoplay playsinline></video>
     <canvas id="canvas"></canvas>
-    <img id="preview" />
+    <img id="preview" alt="Anteprima foto" />
     <button type="button" id="captureBtn" style="display: none;">Scatta</button>
 
     <button type="submit">Registra Cliente</button>
@@ -258,13 +261,20 @@
 
   // Form registrazione
   const clientForm = document.getElementById('clientForm');
+  const preview = document.getElementById('preview');
+
   clientForm.addEventListener('submit', async e => {
     e.preventDefault();
     const nickname = clientForm.nickname.value.trim();
+    const email = clientForm.email.value.trim();
     const nfcCode = clientForm.nfcCode.value.trim();
 
     if (!nickname) {
       alert('Inserisci un nickname valido');
+      return;
+    }
+    if (!email || !email.includes('@')) {
+      alert('Inserisci un\'email valida');
       return;
     }
     if (!nfcCode) {
@@ -275,13 +285,16 @@
     try {
       await addDoc(collection(db, "users"), {
         nickname,
+        email,
         nfcCode,
         timestamp: new Date()
+        // Potresti aggiungere anche la foto codificata in base64 o altro campo se serve
       });
       alert('Cliente registrato con successo!');
       clientForm.reset();
       nfcCodeInput.value = '';
       preview.style.display = 'none';
+      stopCamera();
     } catch (error) {
       alert('Errore durante la registrazione: ' + error.message);
     }
@@ -292,58 +305,61 @@
   const galleryInput = document.getElementById('galleryInput');
   const cameraVideo = document.getElementById('camera');
   const canvas = document.getElementById('canvas');
-  const preview = document.getElementById('preview');
   const captureBtn = document.getElementById('captureBtn');
   let stream;
 
-  photoChoice.addEventListener('change', async () => {
-    preview.style.display = 'none';
-    canvas.style.display = 'none';
-    captureBtn.style.display = 'none';
-    galleryInput.style.display = 'none';
-    cameraVideo.style.display = 'none';
-
+  function stopCamera() {
     if (stream) {
       stream.getTracks().forEach(track => track.stop());
       stream = null;
     }
+    cameraVideo.style.display = 'none';
+    captureBtn.style.display = 'none';
+  }
 
-    if (photoChoice.value === 'gallery') {
-      galleryInput.style.display = 'block';
-    } else if (photoChoice.value === 'camera') {
+  photoChoice.addEventListener('change', async () => {
+    preview.style.display = 'none';
+    canvas.style.display = 'none';
+    stopCamera();
+    galleryInput.value = '';
+
+    if (photoChoice.value === 'camera') {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
         cameraVideo.srcObject = stream;
         cameraVideo.style.display = 'block';
         captureBtn.style.display = 'block';
       } catch (err) {
-        alert('Errore accesso fotocamera: ' + err.message);
+        alert('Errore nell\'accesso alla fotocamera: ' + err.message);
       }
+    } else if (photoChoice.value === 'gallery') {
+      galleryInput.click();
     }
   });
 
-  galleryInput.addEventListener('change', e => {
-    const file = e.target.files[0];
+  captureBtn.addEventListener('click', () => {
+    canvas.width = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(cameraVideo, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+    stopCamera();
+  });
+
+  galleryInput.addEventListener('change', () => {
+    const file = galleryInput.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(evt) {
-        preview.src = evt.target.result;
+      reader.onload = function(e) {
+        preview.src = e.target.result;
         preview.style.display = 'block';
       };
       reader.readAsDataURL(file);
     }
   });
 
-  captureBtn.addEventListener('click', () => {
-    if (!stream) return;
-    const context = canvas.getContext('2d');
-    canvas.width = cameraVideo.videoWidth;
-    canvas.height = cameraVideo.videoHeight;
-    context.drawImage(cameraVideo, 0, 0);
-    const dataUrl = canvas.toDataURL('image/png');
-    preview.src = dataUrl;
-    preview.style.display = 'block';
-  });
 </script>
 
 </body>
