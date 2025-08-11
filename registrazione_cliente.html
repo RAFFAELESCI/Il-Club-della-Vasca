@@ -299,4 +299,52 @@
   photoChoice.addEventListener('change', async () => {
     preview.style.display = 'none';
     canvas.style.display = 'none';
-    captureBtn.style
+    captureBtn.style.display = 'none';
+    galleryInput.style.display = 'none';
+    cameraVideo.style.display = 'none';
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+
+    if (photoChoice.value === 'gallery') {
+      galleryInput.style.display = 'block';
+    } else if (photoChoice.value === 'camera') {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraVideo.srcObject = stream;
+        cameraVideo.style.display = 'block';
+        captureBtn.style.display = 'block';
+      } catch (err) {
+        alert('Errore accesso fotocamera: ' + err.message);
+      }
+    }
+  });
+
+  galleryInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        preview.src = evt.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  captureBtn.addEventListener('click', () => {
+    if (!stream) return;
+    const context = canvas.getContext('2d');
+    canvas.width = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    context.drawImage(cameraVideo, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    preview.src = dataUrl;
+    preview.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>

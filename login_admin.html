@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login Admin - Bathpipe Fidelity</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+  @font-face {
+    font-family: 'Ransel';
+    src: url('/fonts/Ransel.ttf') format('truetype');
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Ransel', 'Montserrat', sans-serif;
+    background-color: #171716;
+    color: #EACE3E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    background-color: #1F1F1E;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+  }
+  h1 {
+    color: #D69327;
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    text-align: left;
+    margin-bottom: 5px;
+    color: #D69327;
+    font-weight: bold;
+  }
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 40px 10px 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    background-color: #2A2A29;
+    color: #EACE3E;
+    font-family: 'Ransel', 'Montserrat', sans-serif;
+    position: relative;
+  }
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+  }
+  .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    fill: #D69327;
+    transition: fill 0.3s ease;
+  }
+  .toggle-password:hover {
+    fill: #EACE3E;
+  }
+  button {
+    background-color: #A2231A;
+    color: #EACE3E;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  button:hover:not(:disabled) {
+    background-color: #D69327;
+    color: #171716;
+  }
+  #errorMsg {
+    margin-top: 10px;
+    color: #D69327;
+    min-height: 1.2em;
+  }
+  .back-link {
+    margin-top: 20px;
+    color: #D69327;
+    cursor: pointer;
+    text-decoration: underline;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+  <h1>Login Admin</h1>
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="admin@tuodominio.com" required />
+
+    <label for="password">Password</label>
+    <div class="password-wrapper">
+      <input type="password" id="password" name="password" placeholder="Inserisci password" required />
+      <svg id="togglePassword" class="toggle-password" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </div>
+
+    <button type="submit">Accedi</button>
+    <div id="errorMsg"></div>
+  </form>
+  <span class="back-link" onclick="location.href='index.html'">← Torna alla Home</span>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { 
+    getAuth, 
+    signInWithEmailAndPassword, 
+    setPersistence, 
+    browserLocalPersistence, 
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
+    authDomain: "il-club-della-vasca.firebaseapp.com",
+    projectId: "il-club-della-vasca",
+    storageBucket: "il-club-della-vasca.appspot.com",
+    messagingSenderId: "924753798835",
+    appId: "1:924753798835:web:fc21f386c666caf37f32c6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Mantieni la sessione utente attiva anche dopo refresh/chiusura browser
+  setPersistence(auth, browserLocalPersistence)
+    .catch((error) => {
+      console.error("Errore impostazione persistenza login:", error);
+    });
+
+  // Controlla se utente è già loggato: se sì, reindirizza subito a home_admin.html
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      // Utente già loggato, vai alla home admin
+      window.location.href = 'home_admin.html';
+    }
+  });
+
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = loginForm.email.value.trim();
+    const password = loginForm.password.value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      alert('Accesso effettuato con successo!');
+      loginForm.reset();
+      location.href = 'home_admin.html'; // redirect alla home admin dopo login
+    } catch (error) {
+      document.getElementById('errorMsg').textContent = 'Errore login: ' + error.message;
+    }
+  });
+
+  // Toggle password visibility
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+
+  togglePassword.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    // Cambia icona a seconda dello stato
+    if(type === 'password') {
+      togglePassword.innerHTML = `
+        <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      `;
+    } else {
+      togglePassword.innerHTML = `
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+        <path d="M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" fill="#171716"/>
+      `;
+    }
+  });
+</script>
+
+</body>
+</html>
