@@ -1,58 +1,176 @@
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, collection, query, orderBy, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Area Cliente - VIP Card</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  background: #1A1A18;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #EACE3E;
+}
 
-const auth = getAuth(app);
+.card {
+  position: relative;
+  width: 280px;
+  height: 420px;
+  background: linear-gradient(145deg, #2C2C28, #1F1F1C);
+  border: 3px solid #D6A638;
+  border-radius: 25px 25px 50px 50px / 15px 15px 50px 50px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,0.03),
+    rgba(255,255,255,0.03) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+}
+
+.card img {
+  position: absolute;
+  top: -20px;
+  width: 150px;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.info {
+  position: relative;
+  z-index: 2;
+  background: rgba(26,26,24,0.85);
+  width: 100%;
+  margin-top: auto;
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.info h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #FFD700;
+  font-weight: 700;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.drink-counter {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.total-drinks {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.bonus {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #D6A638;
+  color: #1A1A18;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 6px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="bonus" id="bonusBanner">Drink Bonus!</div>
+  <img id="userPhoto" src="https://via.placeholder.com/150x150?text=VIP" alt="Cliente">
+
+  <div class="info">
+    <h2 id="nicknameEl">Mario123</h2>
+    <div class="stats">
+      <div class="drink-counter" id="drinkCounter">7 / 10</div>
+      <div class="total-drinks">
+        <span id="totalDrinksEl">20</span> Total
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Config Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
+  authDomain: "il-club-della-vasca.firebaseapp.com",
+  projectId: "il-club-della-vasca",
+  storageBucket: "il-club-della-vasca.appspot.com",
+  messagingSenderId: "924753798835",
+  appId: "1:924753798835:web:fc21f386c666caf37f32c6"
+};
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let userDocId = null;
+const nicknameEl = document.getElementById('nicknameEl');
+const userPhoto = document.getElementById('userPhoto');
+const totalDrinksEl = document.getElementById('totalDrinksEl');
+const bonusBanner = document.getElementById('bonusBanner');
+const drinkCounter = document.getElementById('drinkCounter');
 
-// Rileva se il cliente è loggato
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    alert('Devi accedere per vedere la tua area personale.');
-    location.href = 'login_clienti.html';
-    return;
-  }
+// Funzione per aggiornare la UI
+function updateUI(data){
+  nicknameEl.textContent = data.nickname;
+  userPhoto.src = data.photoUrl;
+  totalDrinksEl.textContent = data.totalDrinks;
+  drinkCounter.textContent = `${data.drinkCount} / 10`;
 
-  const userEmail = user.email;
+  bonusBanner.style.display = data.drinkCount >= 10 ? 'block' : 'none';
+}
 
-  // Trova il documento corrispondente nel DB usando l'email
-  const usersCol = collection(db, "users");
-  const snapshot = await getDocs(usersCol);
-  let found = null;
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
-    if(data.email === userEmail){
-      found = { id: docSnap.id, data };
-    }
-  });
+// Dati di test
+const testUserId = "testUser123";
+let testData = {
+  nickname: "Mario123",
+  photoUrl: "https://via.placeholder.com/150x150?text=VIP",
+  drinkCount: 7,
+  totalDrinks: 20
+};
 
-  if(!found){
-    alert('Utente non trovato.');
-    location.href = 'login_clienti.html';
-    return;
-  }
+updateUI(testData);
 
-  userDocId = found.id;
-  const data = found.data;
-
-  // Aggiorna UI
-  nicknameEl.textContent = data.nickname || "Cliente";
-  userPhoto.src = data.photoUrl || "https://via.placeholder.com/120?text=No+Photo";
-  drinkCountNumber.textContent = data.drinkCount || 0;
-  totalDrinksEl.textContent = data.totalDrinks || 0;
-
-  updateRanking();
-
-  // Listener realtime per drinkCount e totalDrinks
-  const userRef = doc(db, "users", userDocId);
-  onSnapshot(userRef, docSnap => {
-    if(!docSnap.exists()) return;
-    const d = docSnap.data();
-    drinkCountNumber.textContent = d.drinkCount || 0;
-    totalDrinksEl.textContent = d.totalDrinks || 0;
-    if ((d.drinkCount || 0) >= 10) showBanner();
-    else hideBanner();
-    updateRanking();
+// Firebase realtime
+const userRef = doc(db, "users", testUserId);
+onSnapshot(userRef, docSnap => {
+  if(!docSnap.exists()) return;
+  const d = docSnap.data();
+  updateUI({
+    nickname: d.nickname || testData.nickname,
+    photoUrl: d.photoUrl || testData.photoUrl,
+    drinkCount: d.drinkCount || testData.drinkCount,
+    totalDrinks: d.totalDrinks || testData.totalDrinks
   });
 });
+</script>
+
+</body>
+</html>

@@ -5,79 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin - Bathpipe Fidelity</title>
   <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: #171716;
-      color: #EACE3E;
-      margin: 0;
-      padding: 20px;
-    }
+    body { font-family: 'Montserrat', sans-serif; background-color: #171716; color: #EACE3E; margin: 0; padding: 20px; }
     h1 { color: #D69327; margin-bottom: 10px; }
-    #controls {
-      display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px;
-    }
-    #searchInput, select {
-      padding: 8px; border-radius: 6px; border: none; font-size: 1rem;
-      background-color: #2A2A29; color: #EACE3E;
-    }
+    #controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 15px; }
+    #searchInput, select { padding: 8px; border-radius: 6px; border: none; font-size: 1rem; background-color: #2A2A29; color: #EACE3E; }
     #searchInput { width: 250px; }
-    #dataList table {
-      width: 100%; border-collapse: collapse; margin-top: 10px;
-      box-shadow: 0 0 10px rgba(214,147,39,0.5);
-    }
-    #dataList th, #dataList td {
-      border: 2px solid #D69327; padding: 12px; text-align: center; vertical-align: middle;
-    }
-    #dataList th {
-      background-color: #2A2A29; cursor: pointer; user-select: none;
-    }
-    img {
-      width: 50px; height: 50px; border-radius: 50%;
-      border: 2px solid #D69327; object-fit: cover;
-    }
-    td.actions {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 12px;
-    }
-    button.actionBtn {
-      background-color: #A2231A;
-      color: #EACE3E;
-      font-weight: 700;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      min-width: 70px;
-    }
-    button.actionBtn:hover {
-      background-color: #D69327;
-      color: #171716;
-    }
-    /* Modale */
-    #editModal {
-      display: none; position: fixed; z-index: 999; left: 0; top: 0;
-      width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
-      justify-content: center; align-items: center;
-    }
-    #editModalContent {
-      background-color: #1F1F1E; padding: 20px; border-radius: 8px;
-      width: 90%; max-width: 400px; color: #EACE3E; position: relative;
-      box-shadow: 0 0 15px #D69327;
-    }
-    #editModalContent label {
-      display: block; margin-top: 10px; font-weight: 700; color: #D69327; text-align: left;
-    }
-    #editModalContent input {
-      width: 100%; padding: 8px; border-radius: 6px; border: none; margin-top: 5px;
-      font-size: 1rem; background-color: #2A2A29; color: #EACE3E;
-    }
-    #closeModal {
-      position: absolute; top: 10px; right: 15px; background: none;
-      border: none; color: #D69327; font-size: 1.5rem; cursor: pointer; font-weight: 700;
-    }
+    #dataList table { width: 100%; border-collapse: collapse; margin-top: 10px; box-shadow: 0 0 10px rgba(214,147,39,0.5); }
+    #dataList th, #dataList td { border: 2px solid #D69327; padding: 12px; text-align: center; vertical-align: middle; }
+    #dataList th { background-color: #2A2A29; cursor: pointer; user-select: none; }
+    img { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #D69327; object-fit: cover; }
+    td.actions { display: flex; justify-content: center; gap: 10px; padding: 12px; }
+    button.actionBtn { background-color: #A2231A; color: #EACE3E; font-weight: 700; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease; min-width: 70px; }
+    button.actionBtn:hover { background-color: #D69327; color: #171716; }
+    #editModal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+    #editModalContent { background-color: #1F1F1E; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; color: #EACE3E; position: relative; box-shadow: 0 0 15px #D69327; }
+    #editModalContent label { display: block; margin-top: 10px; font-weight: 700; color: #D69327; text-align: left; }
+    #editModalContent input { width: 100%; padding: 8px; border-radius: 6px; border: none; margin-top: 5px; font-size: 1rem; background-color: #2A2A29; color: #EACE3E; }
+    #closeModal { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #D69327; font-size: 1.5rem; cursor: pointer; font-weight: 700; }
+    #editForm button[type="submit"] { margin-top: 15px; width: 100%; padding: 10px; background-color: #D69327; color: #171716; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; }
+    #editForm button[type="submit"]:hover { background-color: #A2231A; color: #EACE3E; }
   </style>
 </head>
 <body>
@@ -100,29 +46,28 @@
 
 <div id="dataList">Caricamento dati...</div>
 
-<!-- Modale modifica -->
 <div id="editModal">
   <div id="editModalContent">
     <button id="closeModal">&times;</button>
     <h2>Modifica Utente</h2>
     <form id="editForm">
       <label for="editFoto">URL Foto</label>
-      <input type="text" id="editFoto" name="editFoto" placeholder="URL immagine" />
+      <input type="text" id="editFoto" />
 
       <label for="editNickname">Nickname</label>
-      <input type="text" id="editNickname" name="editNickname" required />
+      <input type="text" id="editNickname" required />
 
       <label for="editCodiceNFC">Codice NFC</label>
-      <input type="text" id="editCodiceNFC" name="editCodiceNFC" required />
+      <input type="text" id="editCodiceNFC" required />
 
       <label for="editDataRegistrazione">Data Registrazione</label>
-      <input type="datetime-local" id="editDataRegistrazione" name="editDataRegistrazione" required />
+      <input type="datetime-local" id="editDataRegistrazione" required />
 
       <label for="editDrinkCount">Drink Count Generico</label>
-      <input type="number" id="editDrinkCount" name="editDrinkCount" min="0" required />
+      <input type="number" id="editDrinkCount" min="0" required />
 
       <label for="editDrinkPromoCount">Drink Promo (10+1)</label>
-      <input type="number" id="editDrinkPromoCount" name="editDrinkPromoCount" min="0" max="10" required />
+      <input type="number" id="editDrinkPromoCount" min="0" max="10" required />
 
       <button type="submit">Salva Modifiche</button>
     </form>
@@ -131,8 +76,9 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, deleteDoc, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, doc, updateDoc, onSnapshot, Timestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDtSDqUKdsmID1MrN07BKoo6ZFe6ymisSg",
   authDomain: "il-club-della-vasca.firebaseapp.com",
@@ -149,7 +95,6 @@ const dataList = document.getElementById('dataList');
 const editModal = document.getElementById('editModal');
 const closeModalBtn = document.getElementById('closeModal');
 const editForm = document.getElementById('editForm');
-
 const searchInput = document.getElementById('searchInput');
 const sortFieldSelect = document.getElementById('sortField');
 const sortOrderSelect = document.getElementById('sortOrder');
@@ -158,14 +103,10 @@ const backHomeBtn = document.getElementById('backHomeBtn');
 let currentEditDocId = null;
 let clientiData = [];
 
-// Torna home admin
-backHomeBtn.addEventListener('click', () => {
-  window.location.href = "home_admin.html";
-});
-
+backHomeBtn.addEventListener('click', () => { window.location.href = "home_admin.html"; });
 closeModalBtn.addEventListener('click', () => { editModal.style.display = 'none'; });
 
-// Modifica utente
+// Salvataggio modifiche
 editForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!currentEditDocId) return;
@@ -207,10 +148,9 @@ searchInput.addEventListener('input', () => renderTable(filterAndSort(clientiDat
 sortFieldSelect.addEventListener('change', () => renderTable(filterAndSort(clientiData)));
 sortOrderSelect.addEventListener('change', () => renderTable(filterAndSort(clientiData)));
 
-// Funzione realtime listener
+// Caricamento dati
 function loadData() {
   const colRef = collection(db, "clienti");
-
   onSnapshot(colRef, (snapshot) => {
     clientiData = snapshot.docs.map(docSnap => ({
       id: docSnap.id,
@@ -221,14 +161,10 @@ function loadData() {
       drinkCount: docSnap.data().drinkCount || 0,
       drinkPromoCount: docSnap.data().drinkPromoCount || 0
     }));
-
     renderTable(filterAndSort(clientiData));
-  }, (error) => {
-    dataList.innerHTML = `<p>Errore caricamento dati: ${error.message}</p>`;
   });
 }
 
-// Filtra e ordina
 function filterAndSort(data) {
   const searchTerm = searchInput.value.trim().toLowerCase();
   const field = sortFieldSelect.value;
@@ -254,90 +190,76 @@ function filterAndSort(data) {
   return filtered;
 }
 
-// Render tabella
 function renderTable(data) {
   if (!data.length) {
     dataList.innerHTML = "<p>Nessun dato trovato.</p>";
     return;
   }
 
-  let html = `<table>
-    <thead>
-      <tr>
-        <th>Foto</th>
-        <th>Nickname</th>
-        <th>Codice NFC</th>
-        <th>Data Registrazione</th>
-        <th>Drink Count</th>
-        <th>Drink Promo (10+1)</th>
-        <th>Azioni</th>
-      </tr>
-    </thead>
-    <tbody>`;
+  dataList.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Foto</th>
+          <th>Nickname</th>
+          <th>Codice NFC</th>
+          <th>Data Registrazione</th>
+          <th>Drink Count</th>
+          <th>Drink Promo (10+1)</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map(item => {
+          const dateStr = item.timestamp ? item.timestamp.toLocaleString('it-IT') : '';
+          return `
+            <tr data-id="${item.id}">
+              <td><img src="${item.foto || 'https://via.placeholder.com/50'}"/></td>
+              <td>${item.nickname}</td>
+              <td>${item.nfc}</td>
+              <td>${dateStr}</td>
+              <td>${item.drinkCount}</td>
+              <td>${item.drinkPromoCount}</td>
+              <td class="actions">
+                <button class="actionBtn editBtn">Modifica</button>
+              </td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
 
-  for (const item of data) {
-    const dateStr = item.timestamp ? item.timestamp.toLocaleString('it-IT') : '';
-    html += `<tr>
-      <td><img src="${item.foto || 'https://via.placeholder.com/50'}" alt="Foto"/></td>
-      <td>${item.nickname}</td>
-      <td>${item.nfc}</td>
-      <td>${dateStr}</td>
-      <td>${item.drinkCount}</td>
-      <td>${item.drinkPromoCount}</td>
-      <td class="actions">
-        <button class="actionBtn" onclick="openEditModal('${item.id}')">Modifica</button>
-        <button class="actionBtn" onclick="deleteUser('${item.id}', '${item.nickname}')">Elimina</button>
-      </td>
-    </tr>`;
-  }
-
-  html += "</tbody></table>";
-  dataList.innerHTML = html;
+  // Eventi sui pulsanti Modifica
+  const editButtons = dataList.querySelectorAll('.editBtn');
+  editButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr');
+      const docId = tr.getAttribute('data-id');
+      openEditModal(docId);
+    });
+  });
 }
 
-// Modale modifica
-window.openEditModal = function(id) {
-  const user = clientiData.find(u => u.id === id);
+// Apri modal e popola dati
+function openEditModal(docId) {
+  currentEditDocId = docId;
+  const user = clientiData.find(u => u.id === docId);
   if (!user) return;
-
-  currentEditDocId = id;
 
   editForm.editFoto.value = user.foto || '';
   editForm.editNickname.value = user.nickname || '';
   editForm.editCodiceNFC.value = user.nfc || '';
-  editForm.editDataRegistrazione.value = user.timestamp ? toInputDateTimeValue(user.timestamp) : '';
+  editForm.editDataRegistrazione.value = user.timestamp ? new Date(user.timestamp).toISOString().slice(0,16) : '';
   editForm.editDrinkCount.value = user.drinkCount || 0;
   editForm.editDrinkPromoCount.value = user.drinkPromoCount || 0;
 
-  editModal.style.display = "flex";
-};
-
-// Elimina utente
-window.deleteUser = async function(id, nickname) {
-  if (!confirm(`Eliminare definitivamente l'utente "${nickname}"?`)) return;
-
-  try {
-    await deleteDoc(doc(db, "clienti", id));
-    alert("Utente eliminato con successo.");
-  } catch (error) {
-    alert("Errore eliminazione: " + error.message);
-  }
-};
-
-// Helper data per input datetime-local
-function toInputDateTimeValue(date) {
-  const pad = n => n.toString().padStart(2, '0');
-  const yyyy = date.getFullYear();
-  const MM = pad(date.getMonth() + 1);
-  const dd = pad(date.getDate());
-  const hh = pad(date.getHours());
-  const mm = pad(date.getMinutes());
-  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+  editModal.style.display = 'flex';
 }
 
-// Avvia listener realtime
+// Avvia caricamento dati
 loadData();
-</script>
 
+</script>
 </body>
 </html>

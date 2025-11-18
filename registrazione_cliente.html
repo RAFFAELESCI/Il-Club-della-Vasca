@@ -10,9 +10,7 @@
     font-family: 'Ransel';
     src: url('/fonts/Ransel.ttf') format('truetype');
   }
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
   body {
     margin: 0; padding: 0;
     font-family: 'Ransel', 'Montserrat', sans-serif;
@@ -31,21 +29,9 @@
     border-radius: 10px;
     text-align: center;
   }
-  h1 {
-    color: #D69327;
-    margin-bottom: 20px;
-  }
-  label {
-    display: block;
-    text-align: left;
-    margin-bottom: 5px;
-    color: #D69327;
-    font-weight: bold;
-  }
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  select {
+  h1 { color: #D69327; margin-bottom: 20px; }
+  label { display: block; text-align: left; margin-bottom: 5px; color: #D69327; font-weight: bold; }
+  input[type="text"], input[type="email"], select {
     width: 100%;
     padding: 10px;
     border-radius: 6px;
@@ -56,10 +42,7 @@
     color: #EACE3E;
     font-family: 'Ransel', 'Montserrat', sans-serif;
   }
-  input[readonly] {
-    background-color: #3A3A39;
-    cursor: default;
-  }
+  input[readonly] { background-color: #3A3A39; cursor: default; }
   button {
     background-color: #A2231A;
     color: #EACE3E;
@@ -72,14 +55,8 @@
     cursor: pointer;
     margin-top: 10px;
   }
-  button:hover:not(:disabled) {
-    background-color: #D69327;
-    color: #171716;
-  }
-  button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  button:hover:not(:disabled) { background-color: #D69327; color: #171716; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
   .photo-section {
     display: flex;
     align-items: center;
@@ -96,30 +73,10 @@
     font-size: 1rem;
     flex: 1;
   }
-  .photo-icon {
-    margin-left: 10px;
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: #EACE3E;
-    stroke-width: 2;
-  }
-  video, #preview {
-    width: 100%;
-    border-radius: 6px;
-    margin-top: 10px;
-    display: none;
-  }
-  #canvas {
-    display: none;
-  }
-  .back-link {
-    margin-top: 20px;
-    color: #D69327;
-    cursor: pointer;
-    text-decoration: underline;
-    display: inline-block;
-  }
+  .photo-icon { margin-left: 10px; width: 24px; height: 24px; fill: none; stroke: #EACE3E; stroke-width: 2; }
+  video, #preview { width: 100%; border-radius: 6px; margin-top: 10px; display: none; }
+  #canvas { display: none; }
+  .back-link { margin-top: 20px; color: #D69327; cursor: pointer; text-decoration: underline; display: inline-block; }
   /* MODALE */
   #nfcModal {
     position: fixed;
@@ -136,14 +93,8 @@
     color: #EACE3E;
     font-size: 1.2rem;
   }
-  #nfcModal button {
-    width: auto;
-    margin-top: 20px;
-  }
-  #nfcStatus {
-    margin-top: 15px;
-    min-height: 1.5em;
-  }
+  #nfcModal button { width: auto; margin-top: 20px; }
+  #nfcStatus { margin-top: 15px; min-height: 1.5em; }
 </style>
 </head>
 <body>
@@ -216,30 +167,23 @@
   const btnCancelNFC = document.getElementById('btnCancelNFC');
   const nfcStatus = document.getElementById('nfcStatus');
   const nfcCodeInput = document.getElementById('nfcCode');
-
   let nfcAbortController;
 
   btnReadNFC.addEventListener('click', async () => {
     nfcStatus.textContent = 'In attesa... Avvicina il tag NFC.';
     nfcModal.style.display = 'flex';
-
     if ('NDEFReader' in window) {
       try {
         const ndef = new NDEFReader();
         nfcAbortController = new AbortController();
         await ndef.scan({ signal: nfcAbortController.signal });
-        ndef.onreadingerror = () => {
-          nfcStatus.textContent = 'Errore nella lettura NFC.';
-        };
+        ndef.onreadingerror = () => nfcStatus.textContent = 'Errore nella lettura NFC.';
         ndef.onreading = event => {
-          let serial = event.serialNumber || null;
+          const serial = event.serialNumber || null;
           if (serial) {
             nfcStatus.textContent = 'Codice NFC letto: ' + serial;
             nfcCodeInput.value = serial;
-            setTimeout(() => {
-              nfcModal.style.display = 'none';
-              nfcAbortController.abort();
-            }, 1000);
+            setTimeout(() => { nfcModal.style.display = 'none'; nfcAbortController.abort(); }, 1000);
           } else {
             nfcStatus.textContent = 'Nessun codice NFC rilevato.';
           }
@@ -253,9 +197,7 @@
   });
 
   btnCancelNFC.addEventListener('click', () => {
-    if (nfcAbortController) {
-      nfcAbortController.abort();
-    }
+    if (nfcAbortController) nfcAbortController.abort();
     nfcModal.style.display = 'none';
   });
 
@@ -269,26 +211,19 @@
     const email = clientForm.email.value.trim();
     const nfcCode = clientForm.nfcCode.value.trim();
 
-    if (!nickname) {
-      alert('Inserisci un nickname valido');
-      return;
-    }
-    if (!email || !email.includes('@')) {
-      alert('Inserisci un\'email valida');
-      return;
-    }
-    if (!nfcCode) {
-      alert('Devi associare un codice NFC');
-      return;
-    }
+    if (!nickname) { alert('Inserisci un nickname valido'); return; }
+    if (!email || !email.includes('@')) { alert('Inserisci un\'email valida'); return; }
+    if (!nfcCode) { alert('Devi associare un codice NFC'); return; }
 
     try {
-      await addDoc(collection(db, "users"), {
+      await addDoc(collection(db, "clienti"), {
         nickname,
         email,
-        nfcCode,
-        timestamp: new Date()
-        // Potresti aggiungere anche la foto codificata in base64 o altro campo se serve
+        nfc: nfcCode,
+        foto: preview.src || '',
+        timestamp: new Date(),
+        drinkCount: 0,
+        drinkPromoCount: 0
       });
       alert('Cliente registrato con successo!');
       clientForm.reset();
@@ -309,10 +244,7 @@
   let stream;
 
   function stopCamera() {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      stream = null;
-    }
+    if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
     cameraVideo.style.display = 'none';
     captureBtn.style.display = 'none';
   }
@@ -342,8 +274,7 @@
     canvas.height = cameraVideo.videoHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(cameraVideo, 0, 0);
-    const dataUrl = canvas.toDataURL('image/png');
-    preview.src = dataUrl;
+    preview.src = canvas.toDataURL('image/png');
     preview.style.display = 'block';
     stopCamera();
   });
@@ -352,10 +283,7 @@
     const file = galleryInput.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        preview.src = e.target.result;
-        preview.style.display = 'block';
-      };
+      reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
       reader.readAsDataURL(file);
     }
   });
